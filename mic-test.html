@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تست میکروفون</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0d1220; color:#e2e8f0; font-family:system-ui; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:24px; gap:16px; }
+.result { background:#111827; border-radius:12px; padding:16px; width:100%; font-size:13px; line-height:2; word-break:break-all; }
+button { background:#3b82f6; border:none; border-radius:12px; padding:14px 32px; color:#fff; font-size:16px; font-family:inherit; cursor:pointer; }
+.ok { color:#10b981; } .err { color:#ef4444; }
+</style>
+</head>
+<body>
+<div class="result" id="out">نتایج اینجا نشون داده میشه...</div>
+<button onclick="test()">تست میکروفون</button>
+<script>
+function log(msg, ok) {
+  document.getElementById('out').innerHTML += '<div class="'+(ok?'ok':'err')+'">'+msg+'</div>';
+}
+async function test() {
+  document.getElementById('out').innerHTML = '';
+  log('protocol: ' + location.protocol);
+  log('mediaDevices: ' + (!!navigator.mediaDevices));
+  log('getUserMedia: ' + (!!navigator.mediaDevices?.getUserMedia));
+  if (navigator.permissions) {
+    try {
+      const p = await navigator.permissions.query({name:'microphone'});
+      log('permission state: ' + p.state, p.state === 'granted');
+    } catch(e) { log('permissions API: ' + e.message); }
+  } else { log('permissions API: نداره'); }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({audio:true});
+    log('getUserMedia: موفق ✓', true);
+    s.getTracks().forEach(t => t.stop());
+  } catch(e) {
+    log('getUserMedia error: ' + e.name + ' - ' + e.message, false);
+  }
+}
+</script>
+</body>
+</html>
